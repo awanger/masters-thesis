@@ -2,7 +2,7 @@
   <div class="music-render">
     <div id="boo"></div>
     <!-- <command-box v-model="userInput"></command-box> -->
-    <input v-on:keyup="parse()" 
+    <input v-on:keyup="parse" 
            v-model="userInput" 
            type="text"
            placeholder="Type in a note name">
@@ -18,7 +18,7 @@ const VF = Vex.Flow;
 
 
 export default {
-  name: "ActionButton",
+  name: "",
   components: {},
   computed: {
     getCurrentState() {
@@ -37,7 +37,7 @@ export default {
     console.log(referenceNote);
     
     var array1 = [referenceNote];
-    var array2 = [referenceNote];
+    var array2 = [];
     this.drawCanvas(array1, array2);
   },
   methods: {
@@ -57,19 +57,24 @@ export default {
       console.log("the input I will parse is: " + this.userInput);
       
     },
-    parse() { // extract the note
+    parse(event) { // extract the note
+      // console.log('the user input is: ' + this.userInput);
+      // ignore everything except for alphanumeric keys
+      console.log(event);
       var referenceNoteName = this.getCurrentState().context.currentQuestion.notes[0].getNoteName();
       var referenceNote = new VF.StaveNote({clef: "treble", keys: [`${referenceNoteName}/4`], duration: "w" });
-      var userNote = new VF.StaveNote({clef: "treble", keys: [`${this.userInput}/4`], duration: "w" });
+      var userNoteArray = [];
 
-      // parse the shit here and return a VexFlow note object
-      this.redraw([referenceNote], [userNote]);
-      
+      if(this.userInput != '') {
+        var userNote = new VF.StaveNote({clef: "treble", keys: [`${this.userInput}/4`], duration: "w" });
+        userNoteArray.push(userNote);
+      }
+      this.redraw([referenceNote], userNoteArray);
     },
     redraw(noteArray1, noteArray2) {
-      let oldBoo = document.getElementById("boo");
-      let newBoo = document.createElement("div");
-      let musicRenderer = document.querySelector('.music-render');
+      var oldBoo = document.getElementById("boo");
+      var newBoo = document.createElement("div");
+      var musicRenderer = document.querySelector('.music-render');
 
       newBoo.id = "boo";
       oldBoo.remove();
@@ -82,23 +87,26 @@ export default {
       var staveMeasure = new VF.Stave(x, y, width);
       var notesMeasure = [];
 
-      if(x===0) { // if it's the first measure being drawn
-        staveMeasure.addClef("treble").addTimeSignature("4/4").setContext(context).draw();
-      } else {
-        staveMeasure.setContext(context).draw();
-      }
       for(var i=0; i < noteArray.length; i++) {
         // var noteName = noteArray[i];
         var note = noteArray[i];
         notesMeasure.push(note);
       }
-      VF.Formatter.FormatAndDraw(context, staveMeasure, notesMeasure);
+
+      if(notesMeasure.length === 0 && this.userInput === '') {
+        console.log('measure is empty');
+        staveMeasure.setContext(context).draw();
+      } else {
+        if(x===0) { // if it's the first measure being drawn
+          staveMeasure.addClef("treble").addTimeSignature("4/4").setContext(context).draw();
+        } else {
+          staveMeasure.setContext(context).draw();
+        }
+        VF.Formatter.FormatAndDraw(context, staveMeasure, notesMeasure);
+      }
     },
-    // function drawCanvas(noteArray1, noteArray2)
     drawCanvas(noteArray1, noteArray2) {
       var renderer = new VF.Renderer(document.getElementById("boo"), VF.Renderer.Backends.SVG);
-      // var currentQuestion = this.getCurrentState().context.currentQuestion;
-      // var noteName = currentQuestion.notes[0].getNoteName();
       var noteArrays = [noteArray1, noteArray2];
 
       renderer.resize(500, 100);
