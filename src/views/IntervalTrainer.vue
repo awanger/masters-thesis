@@ -1,6 +1,6 @@
 <template>
   <div id="interval-trainer">
-    <!-- <div>current state: {{ getCurrentState().value }}</div> -->
+    <div>current state: {{ getCurrentState().value }}</div>
     <!-- <div>{{ getCurrentState().context.userInput }}</div> -->
     <settings-modal v-if="getCurrentState().matches('modal')"></settings-modal>
     <progress-bar></progress-bar>

@@ -31,9 +31,13 @@ export default {
     }
   },
   mounted() {
-    // var randomNote = new VF.StaveNote({clef: "treble", keys: ['A/5'], duration: "w" });
-    var array1 = ['E'];
-    var array2 = ['B']
+    let referenceNoteName = this.getCurrentState().context.currentQuestion.notes[0].getNoteName();
+    let referenceNote = new VF.StaveNote({clef: "treble", keys: [`${referenceNoteName}/4`], duration: "w" });
+
+    console.log(referenceNote);
+    
+    var array1 = [referenceNote];
+    var array2 = [referenceNote];
     this.drawCanvas(array1, array2);
   },
   methods: {
@@ -49,16 +53,19 @@ export default {
     },
     parseAndRedraw() {
       // pass the output of parse() to redraw()
+      // parse();
+      console.log("the input I will parse is: " + this.userInput);
+      
     },
     parse() { // extract the note
-      console.log("the input I will parse is: " + this.userInput);
 
-      // parse the shit here and return a VexFlow note object
       var note = new VF.StaveNote({clef: "treble", keys: [`${this.userInput}/4`], duration: "w" });
+      console.log(note);
+      // parse the shit here and return a VexFlow note object
+      this.redraw()
       
-      this.redraw(note);
     },
-    redraw() {
+    redraw(noteArray1, noteArray2) {
       let oldBoo = document.getElementById("boo");
       let newBoo = document.createElement("div");
       let musicRenderer = document.querySelector('.music-render');
@@ -67,7 +74,7 @@ export default {
       oldBoo.remove();
       
       musicRenderer.prepend(newBoo);
-      // this.drawCanvas(secondNote);
+      this.drawCanvas(noteArray1, noteArray2);
       // console.log("the extracted note is: " + secondNote);
     },
     drawMeasure(context, noteArray, x, y, width) {
@@ -80,8 +87,8 @@ export default {
         staveMeasure.setContext(context).draw();
       }
       for(var i=0; i < noteArray.length; i++) {
-        var noteName = noteArray[i];
-        var note = new VF.StaveNote({clef: "treble", keys: [`${noteName}/4`], duration: "w" });
+        // var noteName = noteArray[i];
+        var note = noteArray[i];
         notesMeasure.push(note);
       }
       VF.Formatter.FormatAndDraw(context, staveMeasure, notesMeasure);
