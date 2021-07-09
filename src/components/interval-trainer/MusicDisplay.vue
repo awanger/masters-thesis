@@ -58,11 +58,12 @@ export default {
       
     },
     parse() { // extract the note
+      var referenceNoteName = this.getCurrentState().context.currentQuestion.notes[0].getNoteName();
+      var referenceNote = new VF.StaveNote({clef: "treble", keys: [`${referenceNoteName}/4`], duration: "w" });
+      var userNote = new VF.StaveNote({clef: "treble", keys: [`${this.userInput}/4`], duration: "w" });
 
-      var note = new VF.StaveNote({clef: "treble", keys: [`${this.userInput}/4`], duration: "w" });
-      console.log(note);
       // parse the shit here and return a VexFlow note object
-      this.redraw()
+      this.redraw([referenceNote], [userNote]);
       
     },
     redraw(noteArray1, noteArray2) {
@@ -72,7 +73,7 @@ export default {
 
       newBoo.id = "boo";
       oldBoo.remove();
-      
+
       musicRenderer.prepend(newBoo);
       this.drawCanvas(noteArray1, noteArray2);
       // console.log("the extracted note is: " + secondNote);
