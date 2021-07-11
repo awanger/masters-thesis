@@ -2,10 +2,9 @@
   <div class="music-render">
     <div id="boo"></div>
     <!-- <command-box v-model="userInput"></command-box> -->
-    <input v-on:keyup="parse" 
-           v-model="userInput" 
-           type="text"
-           placeholder="Type in a note name">
+    <label>
+      <input v-on:keyup="parse" v-model="userInput" type="text" placeholder="Type in a note name">
+    </label>
   </div>
 </template>
 
@@ -14,8 +13,6 @@
 import { getters, mutations, actions } from '@/store/store.js';
 import Vex from 'vexflow';
 const VF = Vex.Flow;
-
-
 
 export default {
   name: "",
@@ -123,8 +120,6 @@ export default {
 }
 </script>
 
-
-
 <style lang="scss" scoped>
   .music-render {
     display: grid;
@@ -137,12 +132,27 @@ export default {
     grid-row: 1/2;
   }
 
-  input {
-    border: 3px solid #5E696D; // I wonder if there's a way to gain access to the variable
-    border-radius: 3px;
+  label {
+    position: relative;
     grid-column: 2/3;
     grid-row: 2/3;
+  }
+
+  label:before {
+    content: "";
+    position: absolute;
+    left: 1px;
+    top: 0;
+    bottom: 0;
+    width: 20px;
+    background: url('https://upload.wikimedia.org/wikipedia/commons/6/6f/Ic_chevron_right_48px.svg') center / contain no-repeat;
+  }
+
+  input {
+    border: 3px solid #D6E1E5; // I wonder if there's a way to gain access to the variable
+    border-radius: 3px;
     width: 220px;
+    padding: 2% 8%;
     &:focus {
       outline: none !important;
       border: 3px solid #02BAF2;
