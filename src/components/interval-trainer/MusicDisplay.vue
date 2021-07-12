@@ -49,23 +49,48 @@ export default {
       getters.quizService.send(eventObj);
     },
     parseAndRedraw() {
-      // pass the output of parse() to redraw()
-      // parse();
-      console.log("the input I will parse is: " + this.userInput);
-      
+      },
+    tokenize(str) {
+      return str.split(" ");
+    },
+    isNoteName(char) {
+      const validNotes = ['a', 'b','c','d','e','f','g']
+      return validNotes.includes(char);
+    },
+    isValidDuration(char) {
+      const validDuration = ['w', 'q','h'];
+      return validDuration.includes(char);
     },
     parse(event) { // extract the note
       // console.log('the user input is: ' + this.userInput);
       // ignore everything except for alphanumeric keys
+      // console.log("the input I will parse is: " + this.userInput);
       console.log(event);
       var referenceNoteName = this.getCurrentState().context.currentQuestion.notes[0].getNoteName();
       var referenceNote = new VF.StaveNote({clef: "treble", keys: [`${referenceNoteName}/4`], duration: "w" });
       var userNoteArray = [];
 
-      if(this.userInput != '') {
-        var userNote = new VF.StaveNote({clef: "treble", keys: [`${this.userInput}/4`], duration: "w" });
-        userNoteArray.push(userNote);
+      var tokenizedResults = this.tokenize(this.userInput);
+      // console.log(tokenizedResults);
+
+      if (this.userInput != '') {
+        console.log('the user input is: ' + this.userInput);
+        for(var i=0; i<tokenizedResults.length;i++) {
+          let token = tokenizedResults[i];
+          console.log('the token is ' + token);
+          let userNote = new VF.StaveNote({clef: "treble", keys: [`${token}/4`], duration: 'q' });
+          userNoteArray.push(userNote);
+          console.log(userNoteArray);
+          
+          }
       }
+
+      // if(this.userInput != '') {
+      //   var userNote = new VF.StaveNote({clef: "treble", keys: [`${this.userInput}/4`], duration: "q" });
+      //   // var userNote2 = new VF.StaveNote({clef: "treble", keys: [`E/4`], duration: "q" });
+      //   userNoteArray.push(userNote);
+      //   // userNoteArray.push(userNote2);
+      // }
       this.redraw([referenceNote], userNoteArray);
     },
     redraw(noteArray1, noteArray2) {
