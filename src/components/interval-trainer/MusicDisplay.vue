@@ -75,21 +75,28 @@ export default {
 
       if(this.userInput != '') {
         // console.log('the user input is: ' + this.userInput);
-        let regexp = /^[a-gA-G](\/[wqh])?$/;
+        const regexp = /^[a-gA-G](\/[wqhe])?$/;
         let matchSlashRegExp = /\//;
         // let duration;
         for(var i=0; i<tokenizedResults.length;i++) {
           let token = tokenizedResults[i];
-          let duration = 'q'; // default duration will be quarter note
-          console.log('the token is: ' + token);
+          let inputtedNoteName = token[0];
+          let duration = 'q'; // if the user doesn't specify duration, the default is quarter note
+          // console.log('the token is: ' + token);
 
           if(regexp.test(token)) {
-            console.log('we got a match!');
             if(matchSlashRegExp.test(token)) { // if there is a / character in the expression
-              duration = token[2]; // grab the duration value in the token
-              token = token[0]; // only grab the note name in the token (e.g. 'E/h')
+              let durationValue = token[2]; // user inputted duration value
+              console.log('you typed in a slash character');
+              console.log(durationValue);
+              if(durationValue == 'e') { // if the duration value is an eighth note
+                console.log('you typed an eighth note bitch!');
+                duration = '8d';
+              } else {
+                duration = token[2]; // grab the duration value in the token
+              }
             }
-            let userNote = new VF.StaveNote({clef: "treble", keys: [`${token}/4`], duration: `${duration}` });
+            let userNote = new VF.StaveNote({clef: "treble", keys: [`${inputtedNoteName}/4`], duration: `${duration}` });
             userNoteArray.push(userNote);
           }
         }
