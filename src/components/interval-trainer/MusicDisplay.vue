@@ -31,7 +31,7 @@ export default {
     let referenceNoteName = this.getCurrentState().context.currentQuestion.notes[0].getNoteName();
     let referenceNote = new VF.StaveNote({clef: "treble", keys: [`${referenceNoteName}/4`], duration: "w" });
 
-    console.log(referenceNote);
+    // console.log(referenceNote);
     
     var array1 = [referenceNote];
     var array2 = [];
@@ -73,24 +73,27 @@ export default {
       var tokenizedResults = this.tokenize(this.userInput);
       // console.log(tokenizedResults);
 
-      if (this.userInput != '') {
-        console.log('the user input is: ' + this.userInput);
+      if(this.userInput != '') {
+        // console.log('the user input is: ' + this.userInput);
+        let regexp = /^[a-gA-G](\/[wqh])?$/;
+        let matchSlashRegExp = /\//;
+        // let duration;
         for(var i=0; i<tokenizedResults.length;i++) {
           let token = tokenizedResults[i];
-          console.log('the token is ' + token);
-          let userNote = new VF.StaveNote({clef: "treble", keys: [`${token}/4`], duration: 'q' });
-          userNoteArray.push(userNote);
-          console.log(userNoteArray);
-          
-          }
-      }
+          let duration = 'q'; // default duration will be quarter note
+          console.log('the token is: ' + token);
 
-      // if(this.userInput != '') {
-      //   var userNote = new VF.StaveNote({clef: "treble", keys: [`${this.userInput}/4`], duration: "q" });
-      //   // var userNote2 = new VF.StaveNote({clef: "treble", keys: [`E/4`], duration: "q" });
-      //   userNoteArray.push(userNote);
-      //   // userNoteArray.push(userNote2);
-      // }
+          if(regexp.test(token)) {
+            console.log('we got a match!');
+            if(matchSlashRegExp.test(token)) { // if there is a / character in the expression
+              duration = token[2]; // grab the duration value in the token
+              token = token[0]; // only grab the note name in the token (e.g. 'E/h')
+            }
+            let userNote = new VF.StaveNote({clef: "treble", keys: [`${token}/4`], duration: `${duration}` });
+            userNoteArray.push(userNote);
+          }
+        }
+      }
       this.redraw([referenceNote], userNoteArray);
     },
     redraw(noteArray1, noteArray2) {
@@ -116,7 +119,7 @@ export default {
       }
 
       if(notesMeasure.length === 0 && this.userInput === '') {
-        console.log('measure is empty');
+        // console.log('measure is empty');
         staveMeasure.setContext(context).draw();
       } else {
         if(x===0) { // if it's the first measure being drawn

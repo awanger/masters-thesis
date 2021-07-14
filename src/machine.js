@@ -99,7 +99,7 @@ const quizMachine = Machine({
       return context.selectedAnswer === context.currentQuestion.correctAnswer;
     },
     fromActionButton: (_, event) => {
-      console.log(event.selectedButton.target.classList);
+      // console.log(event.selectedButton.target.classList);
       return event.selectedButton.target.classList.contains('btn-container') || 
              event.selectedButton.target.classList.contains('btn-action');
     },
