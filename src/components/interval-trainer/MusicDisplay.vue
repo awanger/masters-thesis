@@ -75,7 +75,7 @@ export default {
 
       if(this.userInput != '') {
         // console.log('the user input is: ' + this.userInput);
-        const regexp = /^[a-gA-G](\/[wqhe])?$/;
+        const regexp = /^[a-gA-G][#]?(\/[wqhe])?$/;
         let matchSlashRegExp = /\//;
         // let duration;
         for(var i=0; i<tokenizedResults.length;i++) {
@@ -84,14 +84,14 @@ export default {
           let duration = 'q'; // if the user doesn't specify duration, the default is quarter note
           // console.log('the token is: ' + token);
 
-          if(regexp.test(token)) {
+          if(regexp.test(token)) { // if the user token matches the regular expression
             if(matchSlashRegExp.test(token)) { // if there is a / character in the expression
               let durationValue = token[2]; // user inputted duration value
               console.log('you typed in a slash character');
               console.log(durationValue);
               if(durationValue == 'e') { // if the duration value is an eighth note
-                console.log('you typed an eighth note bitch!');
-                duration = '8d';
+                // console.log('you typed an eighth note bitch!');
+                duration = '8';
               } else {
                 duration = token[2]; // grab the duration value in the token
               }
