@@ -76,7 +76,8 @@ export default {
       if(this.userInput != '') {
         // console.log('the user input is: ' + this.userInput);
         const regexp = /^[a-gA-G][#]?(\/[wqhe])?$/;
-        let matchSlashRegExp = /\//;
+        const matchSlashRegExp = /\//;
+        const sharpSymbol = /#/;
         // let duration;
         for(var i=0; i<tokenizedResults.length;i++) {
           let token = tokenizedResults[i];
@@ -86,18 +87,22 @@ export default {
 
           if(regexp.test(token)) { // if the user token matches the regular expression
             if(matchSlashRegExp.test(token)) { // if there is a / character in the expression
-              let durationValue = token[2]; // user inputted duration value
-              console.log('you typed in a slash character');
-              console.log(durationValue);
-              if(durationValue == 'e') { // if the duration value is an eighth note
+              let userInputDuration = token.split('/')[1]; // user inputted duration value
+              if(userInputDuration == 'e') { // if the duration value is an eighth note
                 // console.log('you typed an eighth note bitch!');
                 duration = '8';
               } else {
-                duration = token[2]; // grab the duration value in the token
+                duration = userInputDuration; // grab the duration value in the token
               }
             }
-            let userNote = new VF.StaveNote({clef: "treble", keys: [`${inputtedNoteName}/4`], duration: `${duration}` });
-            userNoteArray.push(userNote);
+            // if there is a sharp symbol
+            if(sharpSymbol.test(token)) {
+              let userNote = new VF.StaveNote({clef: "treble", keys: [`${inputtedNoteName}/4`], duration: `${duration}` }).addAccidental(0, new VF.Accidental("#"));
+              userNoteArray.push(userNote);
+            } else {
+              let userNote = new VF.StaveNote({clef: "treble", keys: [`${inputtedNoteName}/4`], duration: `${duration}` });
+              userNoteArray.push(userNote);
+            }
           }
         }
       }
