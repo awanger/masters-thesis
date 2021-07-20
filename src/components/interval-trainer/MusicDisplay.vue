@@ -75,15 +75,15 @@ export default {
 
       if(this.userInput != '') {
         // console.log('the user input is: ' + this.userInput);
-        const regexp = /^[a-gA-G][#]?(\/[wqhe])?$/;
+        const regexp = /^[a-gA-G][#-]?(\/[wqhe])?$/;
         const matchSlashRegExp = /\//;
-        const sharpSymbol = /#/;
+        // const sharpSymbol = /#/;
         // let duration;
         for(var i=0; i<tokenizedResults.length;i++) {
           let token = tokenizedResults[i];
           let inputtedNoteName = token[0];
           let duration = 'q'; // if the user doesn't specify duration, the default is quarter note
-          // console.log('the token is: ' + token);
+          let userNote;
 
           if(regexp.test(token)) { // if the user token matches the regular expression
             if(matchSlashRegExp.test(token)) { // if there is a / character in the expression
@@ -96,13 +96,15 @@ export default {
               }
             }
             // if there is a sharp symbol
-            if(sharpSymbol.test(token)) {
-              let userNote = new VF.StaveNote({clef: "treble", keys: [`${inputtedNoteName}/4`], duration: `${duration}` }).addAccidental(0, new VF.Accidental("#"));
-              userNoteArray.push(userNote);
+            if(/#/.test(token)) {
+              userNote = new VF.StaveNote({clef: "treble", keys: [`${inputtedNoteName}/4`], duration: `${duration}` }).addAccidental(0, new VF.Accidental("#"));
+            } else if(/-/.test(token)) { // if there is a flat symbol
+              userNote = new VF.StaveNote({clef: "treble", keys: [`${inputtedNoteName}/4`], duration: `${duration}` }).addAccidental(0, new VF.Accidental("b"));
+              console.log('you entered a flat symbol----------------------');
             } else {
-              let userNote = new VF.StaveNote({clef: "treble", keys: [`${inputtedNoteName}/4`], duration: `${duration}` });
-              userNoteArray.push(userNote);
+              userNote = new VF.StaveNote({clef: "treble", keys: [`${inputtedNoteName}/4`], duration: `${duration}` });
             }
+            userNoteArray.push(userNote);
           }
         }
       }
