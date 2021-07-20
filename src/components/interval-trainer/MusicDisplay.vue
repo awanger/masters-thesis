@@ -75,14 +75,16 @@ export default {
 
       if(this.userInput != '') {
         // console.log('the user input is: ' + this.userInput);
-        const regexp = /^[a-gA-G][#-]?(\/[wqhe])?$/;
+        const regexp = /^[a-gA-G][#-]?[1-9]?(\/[wqhe])?$/;
         const matchSlashRegExp = /\//;
+        const octaveNumber = /[1-9]/;
         // const sharpSymbol = /#/;
         // let duration;
         for(var i=0; i<tokenizedResults.length;i++) {
           let token = tokenizedResults[i];
           let inputtedNoteName = token[0];
           let duration = 'q'; // if the user doesn't specify duration, the default is quarter note
+          let octave = 4; // if user doesn't specify octave, default is 4
           let userNote;
 
           if(regexp.test(token)) { // if the user token matches the regular expression
@@ -95,14 +97,18 @@ export default {
                 duration = userInputDuration; // grab the duration value in the token
               }
             }
-            // if there is a sharp symbol
+            
+            if(octaveNumber.test(token)) {
+              octave = token.match(octaveNumber);
+            }
+            
+            // if there is an accidental symbol
             if(/#/.test(token)) {
-              userNote = new VF.StaveNote({clef: "treble", keys: [`${inputtedNoteName}/4`], duration: `${duration}` }).addAccidental(0, new VF.Accidental("#"));
+              userNote = new VF.StaveNote({clef: "treble", keys: [`${inputtedNoteName}/${octave}`], duration: `${duration}` }).addAccidental(0, new VF.Accidental("#"));
             } else if(/-/.test(token)) { // if there is a flat symbol
-              userNote = new VF.StaveNote({clef: "treble", keys: [`${inputtedNoteName}/4`], duration: `${duration}` }).addAccidental(0, new VF.Accidental("b"));
-              console.log('you entered a flat symbol----------------------');
+              userNote = new VF.StaveNote({clef: "treble", keys: [`${inputtedNoteName}/${octave}`], duration: `${duration}` }).addAccidental(0, new VF.Accidental("b"));
             } else {
-              userNote = new VF.StaveNote({clef: "treble", keys: [`${inputtedNoteName}/4`], duration: `${duration}` });
+              userNote = new VF.StaveNote({clef: "treble", keys: [`${inputtedNoteName}/${octave}`], duration: `${duration}` });
             }
             userNoteArray.push(userNote);
           }
