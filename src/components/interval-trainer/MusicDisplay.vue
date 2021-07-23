@@ -116,7 +116,7 @@ export default {
       }
       this.redraw([referenceNote], userNoteArray);
     },
-    redraw(noteArray1, noteArray2) {
+    deleteCanvas() {
       var oldBoo = document.getElementById("boo");
       var newBoo = document.createElement("div");
       var musicRenderer = document.querySelector('.music-render');
@@ -125,6 +125,9 @@ export default {
       oldBoo.remove();
 
       musicRenderer.prepend(newBoo);
+    },
+    redraw(noteArray1, noteArray2) {
+      this.deleteCanvas();
       this.drawCanvas(noteArray1, noteArray2);
       // console.log("the extracted note is: " + secondNote);
     },
