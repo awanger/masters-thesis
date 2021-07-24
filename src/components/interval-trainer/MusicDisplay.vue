@@ -48,34 +48,24 @@ export default {
       // console.log(eventObj);
       getters.quizService.send(eventObj);
     },
-    parseAndRedraw() {
-      },
+    getReferenceNote() {
+      let referenceNoteName = this.getCurrentState().context.currentQuestion.notes[0].getNoteName();
+      let referenceNote = new VF.StaveNote({clef: "treble", keys: [`${referenceNoteName}/4`], duration: "w" });
+      return referenceNote;
+    },
     tokenize(str) {
       return str.split(" ");
     },
-    isNoteName(char) {
-      const validNotes = ['a', 'b','c','d','e','f','g']
-      return validNotes.includes(char);
+    isValidExpression(token) {
+      const validexp = /^[a-gA-G][#-]?[1-9]?(\/[wqhe])?$/;
+      return validexp.test(token);
     },
-    isValidDuration(char) {
-      const validDuration = ['w', 'q','h'];
-      return validDuration.includes(char);
-    },
-    parse(event) { // extract the note
-      // console.log('the user input is: ' + this.userInput);
-      // ignore everything except for alphanumeric keys
-      // console.log("the input I will parse is: " + this.userInput);
-      console.log(event);
-      var referenceNoteName = this.getCurrentState().context.currentQuestion.notes[0].getNoteName();
-      var referenceNote = new VF.StaveNote({clef: "treble", keys: [`${referenceNoteName}/4`], duration: "w" });
+    parse() { // extract the note
+      let referenceNote = this.getReferenceNote();
+      var tokenizedResults = this.tokenize(this.userInput);
       var userNoteArray = [];
 
-      var tokenizedResults = this.tokenize(this.userInput);
-      // console.log(tokenizedResults);
-
       if(this.userInput != '') {
-        // console.log('the user input is: ' + this.userInput);
-        const regexp = /^[a-gA-G][#-]?[1-9]?(\/[wqhe])?$/;
         const matchSlashRegExp = /\//;
         const octaveNumber = /[1-9]/;
         // const sharpSymbol = /#/;
@@ -87,8 +77,8 @@ export default {
           let octave = 4; // if user doesn't specify octave, default is 4
           let userNote;
 
-          if(regexp.test(token)) { // if the user token matches the regular expression
-            if(matchSlashRegExp.test(token)) { // if there is a / character in the expression
+          if(this.isValidExpression(token)) {
+            if(matchSlashRegExp.test(token)) {
               let userInputDuration = token.split('/')[1]; // user inputted duration value
               if(userInputDuration == 'e') { // if the duration value is an eighth note
                 // console.log('you typed an eighth note bitch!');
@@ -97,7 +87,6 @@ export default {
                 duration = userInputDuration; // grab the duration value in the token
               }
             }
-            
             if(octaveNumber.test(token)) {
               octave = token.match(octaveNumber);
             }
@@ -136,7 +125,6 @@ export default {
       var notesMeasure = [];
 
       for(var i=0; i < noteArray.length; i++) {
-        // var noteName = noteArray[i];
         var note = noteArray[i];
         notesMeasure.push(note);
       }
