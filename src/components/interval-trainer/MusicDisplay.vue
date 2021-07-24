@@ -1,7 +1,6 @@
 <template>
   <div class="music-render">
     <div id="boo"></div>
-    <!-- <command-box v-model="userInput"></command-box> -->
     <label>
       <input v-on:keyup="parse" v-model="userInput" type="text" placeholder="Type in a note name">
     </label>
@@ -73,27 +72,30 @@ export default {
         return 'q'; // quarter note should be the default value
       }
     },
+    parseOctaveNumber(token) {
+      const octaveRegExp = /[1-9]/;
+      let octaveNumber = 4; // default octave number 4
+      if(octaveRegExp.test(token)) {
+        octaveNumber = token.match(octaveRegExp);
+      }
+      return octaveNumber;
+    },
     parse() { // extract the note
       let referenceNote = this.getReferenceNote();
       var tokenizedResults = this.tokenize(this.userInput);
       var userNoteArray = [];
 
       if(this.userInput != '') {
-        const octaveNumber = /[1-9]/;
-        // const sharpSymbol = /#/;
-        // let duration;
         for(var i=0; i<tokenizedResults.length;i++) {
           let token = tokenizedResults[i];
           let duration;
           let inputtedNoteName = token[0];
-          let octave = 4; // if user doesn't specify octave, default is 4
+          let octave; // if user doesn't specify octave, default is 4
           let userNote;
 
           if(this.isValidExpression(token)) {
             duration = this.parseNoteDuration(token);
-            if(octaveNumber.test(token)) {
-              octave = token.match(octaveNumber);
-            }
+            octave = this.parseOctaveNumber(token);
             
             // if there is an accidental symbol
             if(/#/.test(token)) {
