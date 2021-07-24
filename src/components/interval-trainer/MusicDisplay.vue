@@ -60,33 +60,37 @@ export default {
       const validexp = /^[a-gA-G][#-]?[1-9]?(\/[wqhe])?$/;
       return validexp.test(token);
     },
+    parseNoteDuration(token) {
+      const matchSlashRegExp = /\//;
+      if(matchSlashRegExp.test(token)) {
+        let userInputDuration = token.split('/')[1]; // user inputted duration value
+        if(userInputDuration == 'e') {
+          return '8';
+        } else {
+          return userInputDuration; // grab the duration value in the token
+        }
+      } else {
+        return 'q'; // quarter note should be the default value
+      }
+    },
     parse() { // extract the note
       let referenceNote = this.getReferenceNote();
       var tokenizedResults = this.tokenize(this.userInput);
       var userNoteArray = [];
 
       if(this.userInput != '') {
-        const matchSlashRegExp = /\//;
         const octaveNumber = /[1-9]/;
         // const sharpSymbol = /#/;
         // let duration;
         for(var i=0; i<tokenizedResults.length;i++) {
           let token = tokenizedResults[i];
+          let duration;
           let inputtedNoteName = token[0];
-          let duration = 'q'; // if the user doesn't specify duration, the default is quarter note
           let octave = 4; // if user doesn't specify octave, default is 4
           let userNote;
 
           if(this.isValidExpression(token)) {
-            if(matchSlashRegExp.test(token)) {
-              let userInputDuration = token.split('/')[1]; // user inputted duration value
-              if(userInputDuration == 'e') { // if the duration value is an eighth note
-                // console.log('you typed an eighth note bitch!');
-                duration = '8';
-              } else {
-                duration = userInputDuration; // grab the duration value in the token
-              }
-            }
+            duration = this.parseNoteDuration(token);
             if(octaveNumber.test(token)) {
               octave = token.match(octaveNumber);
             }
