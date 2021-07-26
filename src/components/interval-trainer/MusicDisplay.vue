@@ -80,32 +80,36 @@ export default {
       }
       return octaveNumber;
     },
+    parseAccidentals(token) {
+      const accidentalRegExp = /[#-]/;
+      if(/-/.test(token)) {
+        return 'b'
+      } else {
+        return token.match(accidentalRegExp);
+      }
+    },
+    createNote(noteName, accidental, octave, duration) {
+      if(accidental) { 
+        return new VF.StaveNote({clef: "treble", keys: [`${noteName}/${octave}`], duration: `${duration}` }).
+        addAccidental(0, new VF.Accidental(`${accidental}`));
+      } else {
+        return new VF.StaveNote({clef: "treble", keys: [`${noteName}/${octave}`], duration: `${duration}` });
+      }
+    },
     parse() { // extract the note
       let referenceNote = this.getReferenceNote();
       var tokenizedResults = this.tokenize(this.userInput);
       var userNoteArray = [];
-
       if(this.userInput != '') {
         for(var i=0; i<tokenizedResults.length;i++) {
           let token = tokenizedResults[i];
-          let duration;
-          let inputtedNoteName = token[0];
-          let octave; // if user doesn't specify octave, default is 4
-          let userNote;
-
           if(this.isValidExpression(token)) {
-            duration = this.parseNoteDuration(token);
-            octave = this.parseOctaveNumber(token);
-            
-            // if there is an accidental symbol
-            if(/#/.test(token)) {
-              userNote = new VF.StaveNote({clef: "treble", keys: [`${inputtedNoteName}/${octave}`], duration: `${duration}` }).addAccidental(0, new VF.Accidental("#"));
-            } else if(/-/.test(token)) { // if there is a flat symbol
-              userNote = new VF.StaveNote({clef: "treble", keys: [`${inputtedNoteName}/${octave}`], duration: `${duration}` }).addAccidental(0, new VF.Accidental("b"));
-            } else {
-              userNote = new VF.StaveNote({clef: "treble", keys: [`${inputtedNoteName}/${octave}`], duration: `${duration}` });
-            }
-            userNoteArray.push(userNote);
+            let noteName = token[0];
+            let octave = this.parseOctaveNumber(token);
+            let accidental = this.parseAccidentals(token);
+            let duration = this.parseNoteDuration(token);
+            let note = this.createNote(noteName, accidental, octave, duration);
+            userNoteArray.push(note);
           }
         }
       }
