@@ -56,7 +56,7 @@ export default {
       return str.split(" ");
     },
     isValidExpression(token) {
-      const validexp = /^([a-gA-G][#-]?|r)(\/[wqh])?$/;
+      const validexp = /^([a-gA-G][#-]?|r)[1-9]?(\/[wqh])?$/;
       return validexp.test(token);
     },
     calculateNoteDuration(token, tokenPosition, numTokens) {
