@@ -56,7 +56,7 @@ export default {
       return str.split(" ");
     },
     isValidExpression(token) {
-      const validexp = /^[a-gA-G][#-]?[1-9]?(\/[wqhe])?$/;
+      const validexp = /^([a-gA-G][#-]?|r)(\/[wqh])?$/;
       return validexp.test(token);
     },
     calculateNoteDuration(token, tokenPosition, numTokens) {
@@ -93,12 +93,14 @@ export default {
         return token.match(accidentalRegExp);
       }
     },
-    createNote(noteName, accidental, octave, duration) {
-      if(accidental) { 
-        return new VF.StaveNote({clef: "treble", keys: [`${noteName}/${octave}`], duration: `${duration}` }).
+    createNoteOrRest(name, accidental, octave, duration) {
+      if(name == 'r') {
+        return new VF.StaveNote({clef: "treble", keys: ['b/4'], duration: `${duration}r` });
+      } else if(accidental) { 
+        return new VF.StaveNote({clef: "treble", keys: [`${name}/${octave}`], duration: `${duration}` }).
         addAccidental(0, new VF.Accidental(`${accidental}`));
       } else {
-        return new VF.StaveNote({clef: "treble", keys: [`${noteName}/${octave}`], duration: `${duration}` });
+        return new VF.StaveNote({clef: "treble", keys: [`${name}/${octave}`], duration: `${duration}` });
       }
     },
     parse() { // extract the note
@@ -109,12 +111,12 @@ export default {
         for(var i=0; i<tokenizedResults.length;i++) {
           let token = tokenizedResults[i];
           if(this.isValidExpression(token)) {
-            let noteName = token[0];
+            let noteOrRestName = token[0];
             let octave = this.parseOctaveNumber(token);
             let accidental = this.parseAccidentals(token);
             let duration = this.parseNoteDuration(token);
-            let note = this.createNote(noteName, accidental, octave, duration);
-            noteArray.push(note);
+            let noteOrRest = this.createNoteOrRest(noteOrRestName, accidental, octave, duration);
+            noteArray.push(noteOrRest);
             console.log(noteArray);
           }
         }
@@ -209,7 +211,7 @@ export default {
     width: 220px;
     padding: 2% 8%;
     font-family: 'Roboto Mono', monospace;
-    font-size: 12px;
+    font-size: 14px;
     &:focus {
       outline: none !important;
       border: 3px solid #02BAF2;
