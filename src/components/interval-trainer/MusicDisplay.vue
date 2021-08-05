@@ -32,8 +32,8 @@ export default {
 
     // console.log(referenceNote);
     
-    var array1 = [referenceNote];
-    var array2 = [];
+    let array1 = [referenceNote];
+    let array2 = [];
     this.drawCanvas(array1, array2);
   },
   methods: {
@@ -59,6 +59,11 @@ export default {
       const validexp = /^[a-gA-G][#-]?[1-9]?(\/[wqhe])?$/;
       return validexp.test(token);
     },
+    calculateNoteDuration(token, tokenPosition, numTokens) {
+      if(numTokens === 1) {
+        return 'w';
+      }
+    },
     parseNoteDuration(token) {
       const matchSlashRegExp = /\//;
       if(matchSlashRegExp.test(token)) {
@@ -83,7 +88,7 @@ export default {
     parseAccidentals(token) {
       const accidentalRegExp = /[#-]/;
       if(/-/.test(token)) {
-        return 'b'
+        return 'b';
       } else {
         return token.match(accidentalRegExp);
       }
@@ -99,7 +104,7 @@ export default {
     parse() { // extract the note
       let referenceNote = this.getReferenceNote();
       var tokenizedResults = this.tokenize(this.userInput);
-      var userNoteArray = [];
+      var noteArray = [];
       if(this.userInput != '') {
         for(var i=0; i<tokenizedResults.length;i++) {
           let token = tokenizedResults[i];
@@ -109,11 +114,12 @@ export default {
             let accidental = this.parseAccidentals(token);
             let duration = this.parseNoteDuration(token);
             let note = this.createNote(noteName, accidental, octave, duration);
-            userNoteArray.push(note);
+            noteArray.push(note);
+            console.log(noteArray);
           }
         }
       }
-      this.redraw([referenceNote], userNoteArray);
+      this.redraw([referenceNote], noteArray);
     },
     deleteCanvas() {
       var oldBoo = document.getElementById("boo");
@@ -131,8 +137,8 @@ export default {
       // console.log("the extracted note is: " + secondNote);
     },
     drawMeasure(context, noteArray, x, y, width) {
-      var staveMeasure = new VF.Stave(x, y, width);
-      var notesMeasure = [];
+      let staveMeasure = new VF.Stave(x, y, width);
+      let notesMeasure = [];
 
       for(var i=0; i < noteArray.length; i++) {
         var note = noteArray[i];
@@ -202,6 +208,8 @@ export default {
     border-radius: 3px;
     width: 220px;
     padding: 2% 8%;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 12px;
     &:focus {
       outline: none !important;
       border: 3px solid #02BAF2;
