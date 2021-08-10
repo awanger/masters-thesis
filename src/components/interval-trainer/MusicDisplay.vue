@@ -56,7 +56,7 @@ export default {
       return str.split(" ");
     },
     isValidExpression(token) {
-      const validexp = /^([a-gA-G][#-]?|r)[1-9]?(\/[wqh])?$/;
+      const validexp = /^([a-gA-G][#-]?|r)[1-9]?(\\)*$/;
       return validexp.test(token);
     },
     calculateNoteDuration(token, tokenPosition, numTokens) {
@@ -65,13 +65,15 @@ export default {
       }
     },
     parseNoteDuration(token) {
-      const matchSlashRegExp = /\//;
+      const matchSlashRegExp = /(\\)+/g; // if there is one or more occurrences of a backslash
       if(matchSlashRegExp.test(token)) {
-        let userInputDuration = token.split('/')[1]; // user inputted duration value
-        if(userInputDuration == 'e') {
+        let numFlags = token.split('\\').length-1;
+        if(numFlags === 1) {
           return '8';
-        } else {
-          return userInputDuration; // grab the duration value in the token
+        } else if (numFlags === 2) {
+          return '16';
+        } else if (numFlags === 3) {
+          return '32';
         }
       } else {
         return 'q'; // quarter note should be the default value
@@ -103,7 +105,7 @@ export default {
         return new VF.StaveNote({clef: "treble", keys: [`${name}/${octave}`], duration: `${duration}` });
       }
     },
-    parse() { // extract the note
+    parse() {
       let referenceNote = this.getReferenceNote();
       var tokenizedResults = this.tokenize(this.userInput);
       var noteArray = [];
@@ -117,7 +119,7 @@ export default {
             let duration = this.parseNoteDuration(token);
             let noteOrRest = this.createNoteOrRest(noteOrRestName, accidental, octave, duration);
             noteArray.push(noteOrRest);
-            console.log(noteArray);
+            // console.log(noteArray);
           }
         }
       }

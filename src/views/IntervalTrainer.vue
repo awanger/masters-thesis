@@ -15,7 +15,7 @@
     </div>
     <div v-else id='question-display'>
       <div id="question-wrapper">
-        <h1 class="question">Please fill in the missing note</h1>
+        <h1 class="question">Please fill in the missing notes</h1>
         <!-- <div class="music-render" id="boo"></div> -->
         <music-display></music-display>
         <div class="play-button-wrapper">
@@ -106,7 +106,7 @@ export default {
   .question {
     text-align: left;
     margin: 0;
-    font-size: 2rem;
+    font-size: 1.75rem;
     grid-column-start: 1;
     grid-column-end: 3;
   }

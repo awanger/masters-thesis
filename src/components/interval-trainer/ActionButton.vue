@@ -1,5 +1,5 @@
 <template>
-  <button class="btn btn-action" v-bind:class="{ incorrect: isIncorrectOrCompleted }" v-bind:disabled="!isEnabled">
+  <button class="btn btn-action" v-bind:class="{ incorrect: isIncorrectOrCompleted }">
     <div v-if="getCurrentState().matches('checked') || getCurrentState().matches('displayQuestion') || getCurrentState().matches('modal') ">
       Check
     </div>
