@@ -1,9 +1,9 @@
 <template>
   <div class="music-render">
-    <div id="boo"></div>
     <label>
       <input v-on:keyup="parse" v-model="userInput" type="text" placeholder="Type in a note name">
     </label>
+    <div id="boo"></div>
   </div>
 </template>
 
