@@ -2,16 +2,16 @@
   <div class="music-render">
     <div id="boo"></div>
     <label for="measure-1">
-      <input v-on:keyup="parse" v-model="userInput" type="text" placeholder="Type in a note name" id="measure-1">
+      <input v-on:keyup="parse" type="text" placeholder="Type in a note name" id="measure-1">
     </label>
     <label for="measure-2">
-      <input v-on:keyup="parse" v-model="userInput" type="text" placeholder="Type in a note name" id="measure-2">
+      <input v-on:keyup="parse" type="text" placeholder="Type in a note name" id="measure-2">
     </label>
     <label for="measure-3">
-      <input v-on:keyup="parse" v-model="userInput" type="text" placeholder="Type in a note name" id="measure-3">
+      <input v-on:keyup="parse" type="text" placeholder="Type in a note name" id="measure-3">
     </label>
     <label for="measure-4">
-      <input v-on:keyup="parse" v-model="userInput" type="text" placeholder="Type in a note name" id="measure-4">
+      <input v-on:keyup="parse" type="text" placeholder="Type in a note name" id="measure-4">
     </label>
   </div>
 </template>
@@ -32,7 +32,6 @@ export default {
   },
   data() {
     return {
-      userInput: '',
       measure1: [],
       measure2: [],
       measure3: [],
@@ -114,10 +113,12 @@ export default {
       }
     },
     parse(event) {
-      console.log(event.target);
+      let inputBoxID = event.target.id;
+      let userInput = event.target.value;
+      console.log(inputBoxID);
       // let referenceNote = this.getReferenceNote();
-      var tokenizedResults = this.tokenize(this.userInput);
-      var noteArray = [];
+      let tokenizedResults = this.tokenize(userInput);
+      let noteArray = [];
       if(this.userInput != '') {
         for(var i=0; i<tokenizedResults.length;i++) {
           let token = tokenizedResults[i];
@@ -128,9 +129,20 @@ export default {
             let duration = this.parseNoteDuration(token);
             let noteOrRest = this.createNoteOrRest(noteOrRestName, accidental, octave, duration);
             noteArray.push(noteOrRest);
-            // console.log(noteArray);
+            console.log(noteArray);
           }
         }
+      }
+
+      // refactor this later
+      if(inputBoxID === 'measure-1') {
+        this.measure1 = noteArray;
+      } else if(inputBoxID === 'measure-2') {
+        this.measure2 = noteArray;
+      } else if(inputBoxID === 'measure-3') {
+        this.measure3 = noteArray;
+      } else if(inputBoxID === 'measure-4') {
+        this.measure4 = noteArray;
       }
       this.redraw([this.measure1, this.measure2, this.measure3, this.measure4]);
     },
@@ -154,29 +166,36 @@ export default {
       let notesMeasure = [];
 
       for(var i=0; i < noteArray.length; i++) {
-        var note = noteArray[i];
+        let note = noteArray[i];
         notesMeasure.push(note);
       }
 
-      if(x===0) {
-        staveMeasure.addClef("treble").addTimeSignature("4/4").setContext(context).draw();
-      } else {
-        staveMeasure.setContext(context).draw();
-      }
+
+      // staveMeasure.setContext(context).draw();
 
 
-      // if(notesMeasure.length === 0 && this.userInput === '') {
-      //   staveMeasure.setContext(context).draw();
+      // if(x===0) {
+      //   staveMeasure.addClef("treble").addTimeSignature("4/4").setContext(context).draw(); // if first measure, draw the clef and the time signature
       // } else {
-      //   console.log(x);
-      //   if(x===0) { // if it's the first measure being drawn
-      //     staveMeasure.addClef("treble").addTimeSignature("4/4").setContext(context).draw();
-      //     console.log('add treble clef');
-      //   } else {
-      //     staveMeasure.setContext(context).draw();
-      //   }
-      //   VF.Formatter.FormatAndDraw(context, staveMeasure, notesMeasure);
+      //   staveMeasure.setContext(context).draw();
       // }
+
+      // VF.Formatter.FormatAndDraw(context, staveMeasure, notesMeasure);
+
+
+
+      if(notesMeasure.length === 0 && this.userInput === '') {
+        staveMeasure.setContext(context).draw();
+      } else {
+        console.log(x);
+        if(x===0) { // if it's the first measure being drawn
+          staveMeasure.addClef("treble").addTimeSignature("4/4").setContext(context).draw();
+          console.log('added treble clef');
+        } else {
+          staveMeasure.setContext(context).draw();
+        }
+        VF.Formatter.FormatAndDraw(context, staveMeasure, notesMeasure);
+      }
     },
     drawCanvas(noteArrays) {
       var renderer = new VF.Renderer(document.getElementById("boo"), VF.Renderer.Backends.SVG);
