@@ -1,8 +1,17 @@
 <template>
   <div class="music-render">
     <div id="boo"></div>
-    <label>
-      <input v-on:keyup="parse" v-model="userInput" type="text" placeholder="Type in a note name">
+    <label for="measure-1">
+      <input v-on:keyup="parse" v-model="userInput" type="text" placeholder="Type in a note name" id="measure-1">
+    </label>
+    <label for="measure-2">
+      <input v-on:keyup="parse" v-model="userInput" type="text" placeholder="Type in a note name" id="measure-2">
+    </label>
+    <label for="measure-3">
+      <input v-on:keyup="parse" v-model="userInput" type="text" placeholder="Type in a note name" id="measure-3">
+    </label>
+    <label for="measure-4">
+      <input v-on:keyup="parse" v-model="userInput" type="text" placeholder="Type in a note name" id="measure-4">
     </label>
   </div>
 </template>
@@ -23,17 +32,17 @@ export default {
   },
   data() {
     return {
-      userInput: ''
+      userInput: '',
+      measure1: [],
+      measure2: [],
+      measure3: [],
+      measure4: []
     }
   },
   mounted() {
     // let referenceNoteName = this.getCurrentState().context.currentQuestion.notes[0].getNoteName();
     // let referenceNote = new VF.StaveNote({clef: "treble", keys: [`${referenceNoteName}/4`], duration: "w" });    
-    let measure1 = []; // could probably use a for loop to create measures
-    let measure2 = [];
-    let measure3 = [];
-    let measure4 = [];
-    this.drawCanvas([measure1, measure2, measure3, measure4]);
+    this.drawCanvas([this.measure1, this.measure2, this.measure3, this.measure4]); // so unrefined
   },
   methods: {
     ...mutations,
@@ -104,7 +113,8 @@ export default {
         return new VF.StaveNote({clef: "treble", keys: [`${name}/${octave}`], duration: `${duration}` });
       }
     },
-    parse() {
+    parse(event) {
+      console.log(event.target);
       // let referenceNote = this.getReferenceNote();
       var tokenizedResults = this.tokenize(this.userInput);
       var noteArray = [];
@@ -122,7 +132,7 @@ export default {
           }
         }
       }
-      this.redraw(noteArray);
+      this.redraw([this.measure1, this.measure2, this.measure3, this.measure4]);
     },
     deleteCanvas() {
       var oldBoo = document.getElementById("boo");
@@ -178,7 +188,6 @@ export default {
         var x = width*i;
         var y = 0;
         this.drawMeasure(context, noteArrays[i], x, y, width);
-        console.log(x)
       }
     }
   }
@@ -198,9 +207,9 @@ export default {
   }
 
   label {
-    position: relative;
-    grid-column: 2/3;
-    grid-row: 2/3;
+    // position: relative;
+    // grid-column: 2/3;
+    // grid-row: 2/3;
   }
 
   label:before {
