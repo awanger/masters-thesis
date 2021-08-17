@@ -1,9 +1,9 @@
 <template>
   <div class="music-render">
+    <div id="boo"></div>
     <label>
       <input v-on:keyup="parse" v-model="userInput" type="text" placeholder="Type in a note name">
     </label>
-    <div id="boo"></div>
   </div>
 </template>
 
@@ -27,14 +27,13 @@ export default {
     }
   },
   mounted() {
-    let referenceNoteName = this.getCurrentState().context.currentQuestion.notes[0].getNoteName();
-    let referenceNote = new VF.StaveNote({clef: "treble", keys: [`${referenceNoteName}/4`], duration: "w" });
-
-    // console.log(referenceNote);
-    
-    let array1 = [referenceNote];
-    let array2 = [];
-    this.drawCanvas(array1, array2);
+    // let referenceNoteName = this.getCurrentState().context.currentQuestion.notes[0].getNoteName();
+    // let referenceNote = new VF.StaveNote({clef: "treble", keys: [`${referenceNoteName}/4`], duration: "w" });    
+    let measure1 = []; // could probably use a for loop to create measures
+    let measure2 = [];
+    let measure3 = [];
+    let measure4 = [];
+    this.drawCanvas([measure1, measure2, measure3, measure4]);
   },
   methods: {
     ...mutations,
@@ -106,7 +105,7 @@ export default {
       }
     },
     parse() {
-      let referenceNote = this.getReferenceNote();
+      // let referenceNote = this.getReferenceNote();
       var tokenizedResults = this.tokenize(this.userInput);
       var noteArray = [];
       if(this.userInput != '') {
@@ -123,7 +122,7 @@ export default {
           }
         }
       }
-      this.redraw([referenceNote], noteArray);
+      this.redraw(noteArray);
     },
     deleteCanvas() {
       var oldBoo = document.getElementById("boo");
@@ -135,9 +134,9 @@ export default {
 
       musicRenderer.prepend(newBoo);
     },
-    redraw(noteArray1, noteArray2) {
+    redraw(noteArrays) {
       this.deleteCanvas();
-      this.drawCanvas(noteArray1, noteArray2);
+      this.drawCanvas(noteArrays);
       // console.log("the extracted note is: " + secondNote);
     },
     drawMeasure(context, noteArray, x, y, width) {
@@ -149,23 +148,29 @@ export default {
         notesMeasure.push(note);
       }
 
-      if(notesMeasure.length === 0 && this.userInput === '') {
-        // console.log('measure is empty');
-        staveMeasure.setContext(context).draw();
+      if(x===0) {
+        staveMeasure.addClef("treble").addTimeSignature("4/4").setContext(context).draw();
       } else {
-        if(x===0) { // if it's the first measure being drawn
-          staveMeasure.addClef("treble").addTimeSignature("4/4").setContext(context).draw();
-        } else {
-          staveMeasure.setContext(context).draw();
-        }
-        VF.Formatter.FormatAndDraw(context, staveMeasure, notesMeasure);
+        staveMeasure.setContext(context).draw();
       }
-    },
-    drawCanvas(noteArray1, noteArray2) {
-      var renderer = new VF.Renderer(document.getElementById("boo"), VF.Renderer.Backends.SVG);
-      var noteArrays = [noteArray1, noteArray2];
 
-      renderer.resize(500, 100);
+
+      // if(notesMeasure.length === 0 && this.userInput === '') {
+      //   staveMeasure.setContext(context).draw();
+      // } else {
+      //   console.log(x);
+      //   if(x===0) { // if it's the first measure being drawn
+      //     staveMeasure.addClef("treble").addTimeSignature("4/4").setContext(context).draw();
+      //     console.log('add treble clef');
+      //   } else {
+      //     staveMeasure.setContext(context).draw();
+      //   }
+      //   VF.Formatter.FormatAndDraw(context, staveMeasure, notesMeasure);
+      // }
+    },
+    drawCanvas(noteArrays) {
+      var renderer = new VF.Renderer(document.getElementById("boo"), VF.Renderer.Backends.SVG);
+      renderer.resize(1500, 100);
       let context = renderer.getContext();
       var width = 220;
 
@@ -173,6 +178,7 @@ export default {
         var x = width*i;
         var y = 0;
         this.drawMeasure(context, noteArrays[i], x, y, width);
+        console.log(x)
       }
     }
   }

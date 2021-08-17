@@ -15,12 +15,8 @@
     </div>
     <div v-else id='question-display'>
       <div id="question-wrapper">
-        <h1 class="question">Please fill in the missing notes</h1>
         <!-- <div class="music-render" id="boo"></div> -->
         <music-display></music-display>
-        <div class="play-button-wrapper">
-          <play-button v-on:click.native="play"/>
-        </div>
       </div>
     </div>
     
@@ -30,7 +26,7 @@
 
 <script>
 import ProgressBar from "@/components/interval-trainer/ProgressBar";
-import PlayButton from "@/components/interval-trainer/PlayButton";
+// import PlayButton from "@/components/interval-trainer/PlayButton";
 import MusicDisplay from "@/components/interval-trainer/MusicDisplay";
 import SettingsModal from "@/components/interval-trainer/SettingsModal";
 import Footer from "@/components/interval-trainer/Footer";
@@ -38,7 +34,7 @@ import { getters, mutations } from '@/store/store.js';
 import { player } from "@/plugins/magenta";
 
 export default {
-  components: { ProgressBar, PlayButton, SettingsModal, MusicDisplay, Footer },
+  components: { ProgressBar, SettingsModal, MusicDisplay, Footer },
   created() {
     getters.quizService.onTransition(state=> {
       this.setState(state);
@@ -106,7 +102,7 @@ export default {
   .question {
     text-align: left;
     margin: 0;
-    font-size: 1.75rem;
+    font-size: 2rem;
     grid-column-start: 1;
     grid-column-end: 3;
   }
