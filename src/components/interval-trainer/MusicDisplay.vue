@@ -180,21 +180,24 @@ export default {
       //   staveMeasure.setContext(context).draw();
       // }
 
-      // VF.Formatter.FormatAndDraw(context, staveMeasure, notesMeasure);
+      // VF.Formatter.FormatAndDraw(context, staveMeasure, notesMeasure); // complains 
 
 
-
-      if(notesMeasure.length === 0 && this.userInput === '') {
-        staveMeasure.setContext(context).draw();
+      if(notesMeasure.length === 0) {
+        if(x===0) {
+          staveMeasure.addClef("treble").addTimeSignature("4/4").setContext(context).draw();
+        } else {
+          staveMeasure.setContext(context).draw(); // just draw empty measures
+        }
       } else {
         console.log(x);
         if(x===0) { // if it's the first measure being drawn
           staveMeasure.addClef("treble").addTimeSignature("4/4").setContext(context).draw();
-          console.log('added treble clef');
         } else {
           staveMeasure.setContext(context).draw();
         }
         VF.Formatter.FormatAndDraw(context, staveMeasure, notesMeasure);
+        console.log('formatter seems to shit itself when there are empty note arrays');
       }
     },
     drawCanvas(noteArrays) {
