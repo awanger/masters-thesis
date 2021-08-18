@@ -1,6 +1,5 @@
 <template>
   <div class="music-render">
-    <div id="boo"></div>
     <label for="measure-1">
       <input v-on:keyup="parse" type="text" placeholder="Type in a note name" id="measure-1">
     </label>
@@ -13,6 +12,7 @@
     <label for="measure-4">
       <input v-on:keyup="parse" type="text" placeholder="Type in a note name" id="measure-4">
     </label>
+    <div id="boo"></div>
   </div>
 </template>
 
@@ -181,7 +181,7 @@ export default {
     },
     drawCanvas(noteArrays) {
       var renderer = new VF.Renderer(document.getElementById("boo"), VF.Renderer.Backends.SVG);
-      renderer.resize(1500, 100);
+      renderer.resize(1000, 100);
       let context = renderer.getContext();
       var width = 220;
 
@@ -198,29 +198,30 @@ export default {
 <style lang="scss" scoped>
   .music-render {
     display: grid;
-    grid-template-columns: 220px 220px 200px; // 250px 
+    grid-template-columns: 220px 220px 200px; // 250px
     grid-template-rows: repeat(2, 1fr);
   }
 
   #boo {
-    grid-column: 1/3;
     grid-row: 1/2;
+    // grid-column: 1/3;
   }
 
   label {
     // position: relative;
     // grid-column: 2/3;
-    // grid-row: 2/3;
+    grid-row: 2/3;
+
   }
 
   label:before {
-    content: "";
-    position: absolute;
-    left: 1px;
-    top: 0;
-    bottom: 0;
-    width: 20px;
-    background: url('https://upload.wikimedia.org/wikipedia/commons/6/6f/Ic_chevron_right_48px.svg') center / contain no-repeat;
+    // content: "";
+    // position: absolute;
+    // left: 1px;
+    // top: 0;
+    // bottom: 0;
+    // width: 20px;
+    // background: url('https://upload.wikimedia.org/wikipedia/commons/6/6f/Ic_chevron_right_48px.svg') center / contain no-repeat;
   }
 
   input {
