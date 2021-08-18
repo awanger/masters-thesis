@@ -115,8 +115,6 @@ export default {
     parse(event) {
       let inputBoxID = event.target.id;
       let userInput = event.target.value;
-      console.log(inputBoxID);
-      // let referenceNote = this.getReferenceNote();
       let tokenizedResults = this.tokenize(userInput);
       let noteArray = [];
       if(this.userInput != '') {
