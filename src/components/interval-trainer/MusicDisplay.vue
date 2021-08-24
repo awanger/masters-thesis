@@ -1,7 +1,7 @@
 <template>
   <div class="music-render">
     <label for="measure-1">
-      <input v-on:keyup="parse" type="text" placeholder="Type in a note name" id="measure-1">
+      <input v-on:keyup="parse" v-on:keydown="handleKeypress" type="text" placeholder="Type in a note name" id="measure-1">
     </label>
     <label for="measure-2">
       <input v-on:keyup="parse" type="text" placeholder="Type in a note name" id="measure-2">
@@ -63,7 +63,7 @@ export default {
       return str.split(" ");
     },
     isValidExpression(token) {
-      const validexp = /^([a-gA-G][#-]?|r)[1-9]?(\\)*$/;
+      const validexp = /^([a-gA-G][#-]?|r)[1-9]?((_)|(__)|(\\)*)$/;
       return validexp.test(token);
     },
     calculateNoteDuration(token, tokenPosition, numTokens) {
@@ -72,8 +72,9 @@ export default {
       }
     },
     parseNoteDuration(token) {
-      const matchSlashRegExp = /(\\)+/g; // if there is one or more occurrences of a backslash
-      if(matchSlashRegExp.test(token)) {
+      const containsFlags = /(\\)+/g; // if the user input contains one or more occurrences of a backslash
+      const containsDashes = /(_)|(__)/g  ; // if the user input contains exactly one or exactly two dashes
+      if(containsFlags.test(token)) {
         let numFlags = token.split('\\').length-1;
         if(numFlags === 1) {
           return '8';
@@ -81,6 +82,14 @@ export default {
           return '16';
         } else if (numFlags === 3) {
           return '32';
+        }
+      } else if(containsDashes.test(token)) {
+        console.log(containsDashes);
+        let numDashes = token.split('_').length-1;
+        if(numDashes == 1) {
+          return 'h'; // half note
+        } else if(numDashes == 2) {
+          return 'w'; // whole note
         }
       } else {
         return 'q'; // quarter note should be the default value
@@ -112,6 +121,15 @@ export default {
         return new VF.StaveNote({clef: "treble", keys: [`${name}/${octave}`], duration: `${duration}` });
       }
     },
+    handleKeypress(event) {
+      // console.log(event);
+      let key = event.key;
+      if(key == 'ArrowUp' || key == 'ArrowDown') {
+        event.preventDefault(); // prevent the text cursor from jumping around
+        console.log('up arrow and down arrow');
+      }
+      // parse if the key pressed isn't the up arrow or the down arrow
+    },
     parse(event) {
       let inputBoxID = event.target.id;
       let userInput = event.target.value;
@@ -127,7 +145,6 @@ export default {
             let duration = this.parseNoteDuration(token);
             let noteOrRest = this.createNoteOrRest(noteOrRestName, accidental, octave, duration);
             noteArray.push(noteOrRest);
-            console.log(noteArray);
           }
         }
       }
