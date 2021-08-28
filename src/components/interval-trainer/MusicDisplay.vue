@@ -60,15 +60,15 @@ export default {
       return str.split(" ");
     },
     isValidExpression(token) {
-      const validexp = /^([a-gA-G][#-]?|r)[1-9]?([(_)|(__)]*|[\\]*|[.]?)$/
+      const validexp = /^([a-gA-G][#-]?|r)[1-9]?([(_)|(__)]*|[\\]*|[.])$/
       return validexp.test(token);
     },
     parseDot(token) {
-      const dotRegExp = /.?/g;
+      const dotRegExp = /[.]/g;
       if(dotRegExp.test(token)) {
         return true;
       } else {
-        return true;
+        return false;
       }
     },
     parseNoteDuration(token) {
@@ -111,15 +111,22 @@ export default {
         return token.match(accidentalRegExp);
       }
     },
-    createNoteOrRest(name, accidental, octave, duration) {
+    createNoteOrRest(name, accidental, octave, duration, hasDot) {
+      let note;
       if(name == 'r') {
-        return new VF.StaveNote({clef: "treble", keys: ['b/4'], duration: `${duration}r` });
-      } else if(accidental) { 
-        return new VF.StaveNote({clef: "treble", keys: [`${name}/${octave}`], duration: `${duration}` }).
-        addAccidental(0, new VF.Accidental(`${accidental}`));
+        note = new VF.StaveNote({clef: "treble", keys: ['b/4'], duration: `${duration}r` });
       } else {
-        return new VF.StaveNote({clef: "treble", keys: [`${name}/${octave}`], duration: `${duration}` });
+        note = new VF.StaveNote({clef: "treble", keys: [`${name}/${octave}`], duration: `${duration}` });
       }
+      // modifiers
+      if(accidental) {
+        note.addAccidental(0, new VF.Accidental(`${accidental}`));
+      }
+      if(hasDot) {
+        note.addDot(0);
+      }
+  
+      return note;
     },
     preventDefaultArrowKeyBehavior(event) {
       let key = event.key;
