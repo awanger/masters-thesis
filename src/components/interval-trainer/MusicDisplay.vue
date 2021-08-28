@@ -49,7 +49,6 @@ export default {
         type: event,
         selectedButton: nativeEvent
       }
-      // console.log(eventObj);
       getters.quizService.send(eventObj);
     },
     getReferenceNote() {
@@ -64,10 +63,19 @@ export default {
       const validexp = /^([a-gA-G][#-]?|r)[1-9]?([(_)|(__)]*|[\\]*|[.]?)$/
       return validexp.test(token);
     },
+    parseDot(token) {
+      const dotRegExp = /.?/g;
+      if(dotRegExp.test(token)) {
+        return true;
+      } else {
+        return true;
+      }
+    },
     parseNoteDuration(token) {
-      const containsFlags = /(\\)+/g; // if the user input contains one or more occurrences of a backslash
-      const containsDashes = /(_)|(__)/g  ; // if the user input contains exactly one or exactly two dashes
-      if(containsFlags.test(token)) {
+      const flagRegExp = /(\\)+/g; // if the user input contains one or more occurrences of a backslash
+      const dashesRegExp = /(_)|(__)/g  ; // if the user input contains exactly one or exactly two dashes
+      
+      if(flagRegExp.test(token)) {
         let numFlags = token.split('\\').length-1;
         if(numFlags === 1) {
           return '8';
@@ -76,8 +84,7 @@ export default {
         } else if (numFlags === 3) {
           return '32';
         }
-      } else if(containsDashes.test(token)) {
-        console.log(containsDashes);
+      } else if(dashesRegExp.test(token)) {
         let numDashes = token.split('_').length-1;
         if(numDashes == 1) {
           return 'h'; // half note
@@ -134,7 +141,8 @@ export default {
             let octave = this.parseOctaveNumber(token);
             let accidental = this.parseAccidentals(token);
             let duration = this.parseNoteDuration(token);
-            let noteOrRest = this.createNoteOrRest(noteOrRestName, accidental, octave, duration);
+            let hasDot = this.parseDot(token); // the dot has to be parsed separately from note duration because of VexFlow's addDot() method
+            let noteOrRest = this.createNoteOrRest(noteOrRestName, accidental, octave, duration, hasDot);
             noteArray.push(noteOrRest);
           }
         }
@@ -150,7 +158,7 @@ export default {
         
         let transposedNote = new VF.StaveNote({clef: "treble", keys: [`${newNoteName}`], duration: `${oldNote.duration}`})
         noteArray[0] = transposedNote;
-        console.log(noteArray[0]);
+        // console.log(noteArray[0]);
 
         // probably update the input box in the event the user interface
         // delete the current octave number (if any) and then slap on the new one
