@@ -1,7 +1,7 @@
 <template>
   <div class="music-render">
     <label for="measure-1">
-      <input v-on:keyup="parse" v-on:keydown="handleKeypress" type="text" placeholder="Type in a note name" id="measure-1">
+      <input v-on:keyup="parse" v-on:keydown="preventDefaultArrowKeyBehavior" type="text" placeholder="Type in a note name" id="measure-1">
     </label>
     <label for="measure-2">
       <input v-on:keyup="parse" type="text" placeholder="Type in a note name" id="measure-2">
@@ -38,9 +38,7 @@ export default {
       measure4: []
     }
   },
-  mounted() {
-    // let referenceNoteName = this.getCurrentState().context.currentQuestion.notes[0].getNoteName();
-    // let referenceNote = new VF.StaveNote({clef: "treble", keys: [`${referenceNoteName}/4`], duration: "w" });    
+  mounted() {   
     this.drawCanvas([this.measure1, this.measure2, this.measure3, this.measure4]); // so unrefined
   },
   methods: {
@@ -63,13 +61,8 @@ export default {
       return str.split(" ");
     },
     isValidExpression(token) {
-      const validexp = /^([a-gA-G][#-]?|r)[1-9]?((_)|(__)|(\\)*)$/;
+      const validexp = /^([a-gA-G][#-]?|r)[1-9]?([(_)|(__)]*|[\\]*|[.]?)$/
       return validexp.test(token);
-    },
-    calculateNoteDuration(token, tokenPosition, numTokens) {
-      if(numTokens === 1) {
-        return 'w';
-      }
     },
     parseNoteDuration(token) {
       const containsFlags = /(\\)+/g; // if the user input contains one or more occurrences of a backslash
@@ -121,20 +114,18 @@ export default {
         return new VF.StaveNote({clef: "treble", keys: [`${name}/${octave}`], duration: `${duration}` });
       }
     },
-    handleKeypress(event) {
-      // console.log(event);
+    preventDefaultArrowKeyBehavior(event) {
       let key = event.key;
       if(key == 'ArrowUp' || key == 'ArrowDown') {
-        event.preventDefault(); // prevent the text cursor from jumping around
-        console.log('up arrow and down arrow');
+        event.preventDefault();
       }
-      // parse if the key pressed isn't the up arrow or the down arrow
     },
     parse(event) {
       let inputBoxID = event.target.id;
       let userInput = event.target.value;
       let tokenizedResults = this.tokenize(userInput);
       let noteArray = [];
+      
       if(this.userInput != '') {
         for(var i=0; i<tokenizedResults.length;i++) {
           let token = tokenizedResults[i];
@@ -148,6 +139,26 @@ export default {
           }
         }
       }
+
+      // transpose any notes when the user presses the up or down arrow keys
+      if(event.key == 'ArrowUp' || event.key == 'ArrowDown') {
+        let oldNote = noteArray[0];
+        let oldNoteName = oldNote.keys[0].split('/')[0];
+        let oldOctaveNumber = parseInt(oldNote.keys[0].split('/')[1]);
+        let transposedOctaveNumber = (oldOctaveNumber+1).toString();
+        let newNoteName = oldNoteName + '/' + transposedOctaveNumber;
+        
+        let transposedNote = new VF.StaveNote({clef: "treble", keys: [`${newNoteName}`], duration: `${oldNote.duration}`})
+        noteArray[0] = transposedNote;
+        console.log(noteArray[0]);
+
+        // probably update the input box in the event the user interface
+        // delete the current octave number (if any) and then slap on the new one
+        event.target.value = tokenizedResults[0] + transposedOctaveNumber;
+        // console.log(event.target.value);
+
+      }
+
 
       // refactor this later
       if(inputBoxID === 'measure-1') {
