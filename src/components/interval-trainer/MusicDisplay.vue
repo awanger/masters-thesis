@@ -53,6 +53,7 @@ export default {
     },
     handleKeyUp(e) {
       this.parse(e);
+      this.preventDefaultArrowKeyBehavior(e);
     },
     tokenize(str) {
       return str.split(" ");
@@ -94,7 +95,7 @@ export default {
       }
     },
     parseOctaveNumber(token) {
-      const octaveRegExp = /[1-9]/;
+      const octaveRegExp = /[0-9]/;
       let octaveNumber = 4; // default octave number 4
       if(octaveRegExp.test(token)) {
         octaveNumber = token.match(octaveRegExp);
@@ -109,12 +110,18 @@ export default {
         return token.match(accidentalRegExp);
       }
     },
-    createNoteOrRest(name, accidental, octave, duration, hasDot) {
+    createNoteOrRest(token) {
+      let noteOrRestName = token[0];
+      let octave = this.parseOctaveNumber(token);
+      let accidental = this.parseAccidentals(token);
+      let duration = this.parseNoteDuration(token);
+      let hasDot = this.parseDot(token); // the dot has to be parsed separately from note duration because of VexFlow's addDot() method
+
       let note;
-      if(name == 'r') {
+      if(noteOrRestName == 'r') {
         note = new VF.StaveNote({clef: "treble", keys: ['b/4'], duration: `${duration}r` });
       } else {
-        note = new VF.StaveNote({clef: "treble", keys: [`${name}/${octave}`], duration: `${duration}` });
+        note = new VF.StaveNote({clef: "treble", keys: [`${noteOrRestName}/${octave}`], duration: `${duration}` });
       }
       // modifiers
       if(accidental) {
@@ -167,48 +174,33 @@ export default {
         for(var i=0; i<tokenizedResults.length;i++) {
           let token = tokenizedResults[i];
           if(this.isValidExpression(token)) {
-            let noteOrRestName = token[0];
-            let octave = this.parseOctaveNumber(token);
-            let accidental = this.parseAccidentals(token);
-            let duration = this.parseNoteDuration(token);
-            let hasDot = this.parseDot(token); // the dot has to be parsed separately from note duration because of VexFlow's addDot() method
-            let noteOrRest = this.createNoteOrRest(noteOrRestName, accidental, octave, duration, hasDot);
+            let noteOrRest = this.createNoteOrRest(token);
             noteArray.push(noteOrRest);
           }
         }
       }
-      
-      
 
-      // TODO:
-      // create a transpose() function to handle arrow key up and arrow key down
-      // Instead of executing parse() on keydown, execute a handleKeyUp() function instead that calls parse() and tranpose()
-      // for the transpose function()
-         // 1. Get the index of the current note
-         // 2. Create a new note with the octave raised or lowered and update the appropriate index in the noteArray
-         // 3. Update the appropriate position in the textbox
       if(event.key == 'ArrowUp' || event.key == 'ArrowDown') {
         let ranges = this.createRanges(tokenizedResults);
         let cursorPosition = event.target.selectionStart;
         let tokenIndex = this.cursorPositionToTokenIndex(cursorPosition, ranges);
-        console.log(tokenizedResults[tokenIndex]);
+        let selectedToken = tokenizedResults[tokenIndex];
+        let octaveNumber= this.parseOctaveNumber(selectedToken);
+        if(event.key == 'ArrowUp') {
+          octaveNumber++;
+        }
+        if(event.key == 'ArrowDown') {
+          octaveNumber--;
+        }
 
-        // let oldNote = noteArray[0];
-        // let oldNoteName = oldNote.keys[0].split('/')[0];
-        // let oldOctaveNumber = parseInt(oldNote.keys[0].split('/')[1]);
-        // let transposedOctaveNumber = (oldOctaveNumber+1).toString();
+        let newToken = selectedToken.replace(/[0-9]/, '') + `${octaveNumber}`; // replace the old octave number with the new one
+        let newNoteOrRest = this.createNoteOrRest(newToken);
+        tokenizedResults[tokenIndex] = newToken;
+        let newTextInput = tokenizedResults.join(' ');
+        console.log(newTextInput);
 
-
-        // let newNoteName = oldNoteName + '/' + transposedOctaveNumber;
-        
-        // let transposedNote = new VF.StaveNote({clef: "treble", keys: [`${newNoteName}`], duration: `${oldNote.duration}`})
-        // noteArray[0] = transposedNote;
-        // // console.log(noteArray[0]);
-
-        // // probably update the input box in the event the user interface
-        // // delete the current octave number (if any) and then slap on the new one
-        // event.target.value = tokenizedResults[0] + transposedOctaveNumber;
-        // console.log(event.target.value);
+        noteArray[tokenIndex] = newNoteOrRest;
+        event.target.value = newTextInput;
       }
 
 
