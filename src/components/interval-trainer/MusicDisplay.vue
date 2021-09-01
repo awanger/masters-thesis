@@ -1,16 +1,16 @@
 <template>
   <div class="music-render">
     <label for="measure-1">
-      <input v-on:keyup="parse" v-on:keydown="preventDefaultArrowKeyBehavior" type="text" placeholder="Type in a note name" id="measure-1">
+      <input v-on:keyup="handleKeyUp" v-on:keydown="preventDefaultArrowKeyBehavior" type="text" placeholder="Type in a note name" id="measure-1">
     </label>
     <label for="measure-2">
-      <input v-on:keyup="parse" type="text" placeholder="Type in a note name" id="measure-2">
+      <input v-on:keyup="handleKeyUp" type="text" placeholder="Type in a note name" id="measure-2">
     </label>
     <label for="measure-3">
-      <input v-on:keyup="parse" type="text" placeholder="Type in a note name" id="measure-3">
+      <input v-on:keyup="handleKeyUp" type="text" placeholder="Type in a note name" id="measure-3">
     </label>
     <label for="measure-4">
-      <input v-on:keyup="parse" type="text" placeholder="Type in a note name" id="measure-4">
+      <input v-on:keyup="handleKeyUp" type="text" placeholder="Type in a note name" id="measure-4">
     </label>
     <div id="boo"></div>
   </div>
@@ -51,10 +51,8 @@ export default {
       }
       getters.quizService.send(eventObj);
     },
-    getReferenceNote() {
-      let referenceNoteName = this.getCurrentState().context.currentQuestion.notes[0].getNoteName();
-      let referenceNote = new VF.StaveNote({clef: "treble", keys: [`${referenceNoteName}/4`], duration: "w" });
-      return referenceNote;
+    handleKeyUp(e) {
+      this.parse(e);
     },
     tokenize(str) {
       return str.split(" ");
@@ -125,13 +123,38 @@ export default {
       if(hasDot) {
         note.addDot(0);
       }
-  
       return note;
     },
     preventDefaultArrowKeyBehavior(event) {
       let key = event.key;
       if(key == 'ArrowUp' || key == 'ArrowDown') {
         event.preventDefault();
+      }
+    },
+    createRanges(tokenizedResults) {
+      let ranges = []
+      let index = 0;
+      for (let token of tokenizedResults) {
+        let range = [];
+        range.push(index);
+        index += token.length;
+        range.push(index);
+        ranges.push(range);
+        index++;
+      }
+      return ranges;
+    },
+    isBetween(cursorPosition, range) {
+      let lowerBound = range[0];
+      let upperBound = range[1];
+      return cursorPosition >= lowerBound && cursorPosition <= upperBound;
+    },
+    cursorPositionToTokenIndex(cursorPosition, ranges) {
+      for (let index=0; index < ranges.length; index++) {
+        let range = ranges[index];
+        if(this.isBetween(cursorPosition, range)) {
+          return index; // tokenizedResults[index]
+        }
       }
     },
     parse(event) {
@@ -154,24 +177,38 @@ export default {
           }
         }
       }
+      
+      
 
-      // transpose any notes when the user presses the up or down arrow keys
+      // TODO:
+      // create a transpose() function to handle arrow key up and arrow key down
+      // Instead of executing parse() on keydown, execute a handleKeyUp() function instead that calls parse() and tranpose()
+      // for the transpose function()
+         // 1. Get the index of the current note
+         // 2. Create a new note with the octave raised or lowered and update the appropriate index in the noteArray
+         // 3. Update the appropriate position in the textbox
       if(event.key == 'ArrowUp' || event.key == 'ArrowDown') {
-        let oldNote = noteArray[0];
-        let oldNoteName = oldNote.keys[0].split('/')[0];
-        let oldOctaveNumber = parseInt(oldNote.keys[0].split('/')[1]);
-        let transposedOctaveNumber = (oldOctaveNumber+1).toString();
-        let newNoteName = oldNoteName + '/' + transposedOctaveNumber;
+        let ranges = this.createRanges(tokenizedResults);
+        let cursorPosition = event.target.selectionStart;
+        let tokenIndex = this.cursorPositionToTokenIndex(cursorPosition, ranges);
+        console.log(tokenizedResults[tokenIndex]);
+
+        // let oldNote = noteArray[0];
+        // let oldNoteName = oldNote.keys[0].split('/')[0];
+        // let oldOctaveNumber = parseInt(oldNote.keys[0].split('/')[1]);
+        // let transposedOctaveNumber = (oldOctaveNumber+1).toString();
+
+
+        // let newNoteName = oldNoteName + '/' + transposedOctaveNumber;
         
-        let transposedNote = new VF.StaveNote({clef: "treble", keys: [`${newNoteName}`], duration: `${oldNote.duration}`})
-        noteArray[0] = transposedNote;
-        // console.log(noteArray[0]);
+        // let transposedNote = new VF.StaveNote({clef: "treble", keys: [`${newNoteName}`], duration: `${oldNote.duration}`})
+        // noteArray[0] = transposedNote;
+        // // console.log(noteArray[0]);
 
-        // probably update the input box in the event the user interface
-        // delete the current octave number (if any) and then slap on the new one
-        event.target.value = tokenizedResults[0] + transposedOctaveNumber;
+        // // probably update the input box in the event the user interface
+        // // delete the current octave number (if any) and then slap on the new one
+        // event.target.value = tokenizedResults[0] + transposedOctaveNumber;
         // console.log(event.target.value);
-
       }
 
 
